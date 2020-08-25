@@ -1,8 +1,8 @@
 package main
 
 import (
-	"context"
 	"log"
+	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -18,7 +18,7 @@ func GetKey(key string) string {
 }
 
 func LoadEnv() {
-	err := godotenv.Load(".env")
+	err := godotenv.Load(".env-go")
 	if err != nil {
 		log.Fatalf("Error read .env")
 		os.Exit(1)
@@ -48,17 +48,44 @@ func main() {
 	})
 
 	r.POST("/ups", func(c *gin.Context) {
-		file, _ := c.FormFile("file")
-		filename := filepath.Base(file.Filename)
-		if err := c.SaveUploadedFile(file, filename); err != nil {
-			// Handling FPutObject :(
-			if _, err := minioClient.FPutObject(context.Background(), bucket, filename, file, minio.PutObjectOptions{
-				ContentType: "multipart/form-data",
-			}); err != nil {
-				log.Fatalln(err)
-			}
+		f, err := c.FormFile("file")
+		if err != nil {
+			panic(err)
 		}
+
+		filename := f.Filename
+		size := f.Size
+		r, err := f.Open()
+		if err != nil {
+			panic(err)
+		}
+
+		defer r.Close()
+
+		_, err = minioClient.PutObject(c.Request.Context(), bucket, filename, r, size, minio.PutObjectOptions{
+			ContentType: mime.TypeByExtension(filepath.Ext(filename)),
+		})
+		if err != nil {
+			panic(err)
+		}
+
+		// file, _ := c.FormFile("file")
+		// filename := filepath.Base(file.Filename)
+
+		// if err := c.SaveUploadedFile(file, filename); err != nil {
+		// 	// Handling FPutObject :(
+		// 	if _, err := minioClient.FPutObject(context.Background(), bucket, filename, file, minio.PutObjectOptions{
+		// 		ContentType: "multipart/form-data",
+		// 	}); err != nil {
+		// 		log.Fatalln(err)
+		// 	}
+		// }
+		c.JSON(http.StatusOK, gin.H{
+			"message":   "ok",
+			"data_aneh": 10000,
+		})
 	})
+
 	// List bucket test
 	// buckets, err := minioClient.ListBuckets(context.Background())
 	// if err != nil {
