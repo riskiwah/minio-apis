@@ -1,0 +1,30 @@
+apiVersion: "authentication.istio.io/v1alpha1"
+kind: "Policy"
+metadata:
+  name: "policy-minio"
+spec:
+  targets:
+  - name: minio-service
+  peers:
+  - mtls: {}          # Sama saja }
+      # mode: STRICT  #           }
+---
+apiVersion: "networking.istio.io/v1alpha3"
+kind: "DestinationRule"
+metadata:
+  name: "dr-minio-mtls"
+spec:
+  host: "minio-service.default.svc.cluster.local"
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+# ---
+# apiVersion: "networking.istio.io/v1alpha3"
+# kind: "DestinationRule"
+# metadata:
+#   name: "dr-frontend-mtls"
+# spec:
+#   host: "frontend-svc.default.svc.cluster.local"
+#   trafficPolicy:
+#     tls:
+#       mode: ISTIO_MUTUAL

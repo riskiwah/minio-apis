@@ -7,9 +7,21 @@ services:
         ports:
             - "9000:9000"
         environment: 
-            MINIO_ACCESS_KEY: minio
-            MINIO_SECRET_KEY: minio123
+            MINIO_ACCESS_KEY: ${ACCESS_KEY_ID}
+            MINIO_SECRET_KEY: ${ACCESS_SECRET_KEY}
             MINIO_REGION_NAME: us-east-1
         command: server /vvol
+    
+    minio-apis:
+        build: .
+        ports:
+            - "8080:8080"
+        depends_on: 
+            - minio
+        environment: 
+            ENDPOINT: ${ENDPOINT}
+            ACCESS_KEY_ID: ${ACCESS_KEY_ID}
+            ACCESS_SECRET_KEY: ${ACCESS_SECRET_KEY}
+            BUCKET: ${BUCKET}
 volumes:
     vvol:

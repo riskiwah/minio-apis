@@ -1,0 +1,32 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: minio-apis-svc
+spec:
+  selector:
+    app: minio-apis
+  type: ClusterIP
+  ports:
+  - name: http-golang
+    port: 8080
+    targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio-apis-dep
+spec:
+  selector:
+    matchLabels:
+      app: minio-apis
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: minio-apis
+    spec:
+      containers:
+      - name: minio-apis
+        image: riskiwah/minio-apis:k8s
+        ports:
+            - containerPort: 8080

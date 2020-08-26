@@ -18,7 +18,7 @@ func GetKey(key string) string {
 }
 
 func LoadEnv() {
-	err := godotenv.Load(".env-go")
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatalf("Error read .env")
 		os.Exit(1)
@@ -82,7 +82,7 @@ func main() {
 		// }
 		c.JSON(http.StatusOK, gin.H{
 			"message":   "ok",
-			"data_aneh": 10000,
+			"x-dotwell": "384kbps",
 		})
 	})
 
