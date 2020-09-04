@@ -44,7 +44,7 @@ func main() {
 	r := gin.Default()
 	r.MaxMultipartMemory = 8 << 20
 	r.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "Isoku mek Hello World")
+		c.String(http.StatusOK, "Hello!")
 	})
 
 	r.POST("/ups", func(c *gin.Context) {
@@ -69,35 +69,10 @@ func main() {
 			panic(err)
 		}
 
-		// file, _ := c.FormFile("file")
-		// filename := filepath.Base(file.Filename)
-
-		// if err := c.SaveUploadedFile(file, filename); err != nil {
-		// 	// Handling FPutObject :(
-		// 	if _, err := minioClient.FPutObject(context.Background(), bucket, filename, file, minio.PutObjectOptions{
-		// 		ContentType: "multipart/form-data",
-		// 	}); err != nil {
-		// 		log.Fatalln(err)
-		// 	}
-		// }
 		c.JSON(http.StatusOK, gin.H{
-			"message":   "ok",
-			"x-dotwell": "384kbps",
+			"message": "ok",
 		})
 	})
-
-	// List bucket test
-	// buckets, err := minioClient.ListBuckets(context.Background())
-	// if err != nil {
-	// 	log.Fatalln(err)
-	// }
-	// for _, bucket := range buckets {
-	// 	log.Println(bucket)
-	// }
-
-	// debs
-	// GetEp := GetKey("ENDPOINT")
-	// fmt.Println("my ep is", GetEp)
 
 	r.Run(":8080")
 }
