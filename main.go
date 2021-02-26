@@ -63,7 +63,8 @@ func main() {
 		defer r.Close()
 
 		_, err = minioClient.PutObject(c.Request.Context(), bucket, filename, r, size, minio.PutObjectOptions{
-			ContentType: mime.TypeByExtension(filepath.Ext(filename)),
+			ContentType:  mime.TypeByExtension(filepath.Ext(filename)),
+			CacheControl: "max-age=36000",
 		})
 		if err != nil {
 			panic(err)
