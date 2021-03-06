@@ -1,11 +1,14 @@
 package main
 
 import (
+	"context"
 	"log"
 	"mime"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -24,6 +27,8 @@ func LoadEnv() {
 		os.Exit(1)
 	}
 }
+
+var expired int = 300
 
 func main() {
 	LoadEnv()
@@ -64,7 +69,7 @@ func main() {
 
 		_, err = minioClient.PutObject(c.Request.Context(), bucket, filename, r, size, minio.PutObjectOptions{
 			ContentType:  mime.TypeByExtension(filepath.Ext(filename)),
-			CacheControl: "max-age=36000",
+			CacheControl: "max-age=31556952",
 		})
 		if err != nil {
 			panic(err)
@@ -73,6 +78,14 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "ok",
 		})
+
+		reqParams := make(url.Values)
+		reqParams.Set("content-disposition", "inline")
+		presignedURL, err := minioClient.PresignedGetObject(context.Background(), bucket, filename, time.Duration(expired)*time.Second, reqParams)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		log.Println(presignedURL)
 	})
 
 	r.Run(":8080")
